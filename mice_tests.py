@@ -33,30 +33,6 @@ rcParams['ytick.minor.size'] = 4
 rcParams['ytick.major.width'] = 2
 rcParams['ytick.labelsize'] = 16
 
-hdul=fits.open("MICE_cats/mice2_cat_1.fits")
-data = hdul[1].data
-
-x1 = data["ra_gal_mag"]
-y1 = data["dec_gal_mag"]
-gamma_1 = data["gamma1"]
-gamma_2 = data["gamma2"]
-z_true = data["z_cgal_v"]
-z_B = data["Z_B"]
-kappa = data["kappa"]
-weight = data["weight"]
-
-m_evo_u = data["m_evo_u"]
-m_evo_g = data["m_evo_g"]
-m_evo_r = data["m_evo_r"]
-m_evo_i = data["m_evo_i"]
-
-m_obs_u = data["m_obs_u"]
-m_obs_g = data["m_obs_g"]
-m_obs_r = data["m_obs_r"]
-m_obs_i = data["m_obs_i"]
-
-hdul.close()
-
 ###############################################
 ### needed for reddening calculations ###
 lambda_u = 365
@@ -76,7 +52,8 @@ def measure_ggl(ra_s,dec_s,ra_d,dec_d,redg_1s, redg_2s):
     cat_2 = treecorr.Catalog(x=ra_s*60,x_units='arcmin', y=dec_s*60, y_units='arcmin', g1=-redg_1s, g2=-redg_2s)
     cat_1 = treecorr.Catalog(x=ra_d*60,x_units='arcmin', y=dec_d*60, y_units='arcmin')
 
-    fn_output = "Txt_files/GGL/ggl_"+str(i)+'_'+str(j)+'_'+str(k)+".txt"
+    fn_output = "Txt_files/GGL/ggl_"
+    +str(ra_k)+'_'+str(dec_k)+'_'+str(i)+'_'+str(j)+'_'+str(k)+".txt"
 
     ng = treecorr.NGCorrelation(min_sep=1,max_sep=120,nbins=15,sep_units='arcmin')
     ng.process(cat_1,cat_2)
@@ -105,15 +82,10 @@ def measure_magnification(ra_s,dec_s,ra_d,dec_d,magnitudes):
     mag_r = magnitudes[2]
     mag_i = magnitudes[3]
                 
-    mag_sample_u = mag_u[np.where((z_2>z_min_s) & (z_2<z_max_s))]
-    mag_sample_g = mag_g[np.where((z_2>z_min_s) & (z_2<z_max_s))]
-    mag_sample_r = mag_r[np.where((z_2>z_min_s) & (z_2<z_max_s))]
-    mag_sample_i = mag_i[np.where((z_2>z_min_s) & (z_2<z_max_s))]
-                
-    mag_input_u = mag_sample_u - np.mean(mag_sample_u)
-    mag_input_g = mag_sample_g - np.mean(mag_sample_g)
-    mag_input_r = mag_sample_r - np.mean(mag_sample_r)
-    mag_input_i = mag_sample_i - np.mean(mag_sample_i)
+    mag_input_u = mag_u - np.mean(mag_u)
+    mag_input_g = mag_g - np.mean(mag_g)
+    mag_input_r = mag_r - np.mean(mag_r)
+    mag_input_i = mag_i - np.mean(mag_i)
     
     cat_2_u = treecorr.Catalog(x=ra_s,x_units='deg', y=dec_s, y_units='deg', k=mag_input_u)
     cat_2_g = treecorr.Catalog(x=ra_s,x_units='deg', y=dec_s, y_units='deg', k=mag_input_g)
@@ -122,22 +94,22 @@ def measure_magnification(ra_s,dec_s,ra_d,dec_d,magnitudes):
     
     cat_1 = treecorr.Catalog(x=ra_d,x_units='deg', y=dec_d, y_units='deg')
 
-    fn_output_u = "Txt_files/Magnification/magn_u_"+str(i)+'_'+str(j)+'_'+str(k)+".txt"
+    fn_output_u = "Txt_files/Magnification/magn_u_"+str(ra_k)+'_'+str(dec_k)+'_'+str(i)+'_'+str(j)+'_'+str(k)+".txt"
     nk_u = treecorr.NKCorrelation(min_sep=0.1,max_sep=120,nbins=8,sep_units='arcmin')
     nk_u.process(cat_1,cat_2_u)
     nk_u.write(fn_output_u)
     
-    fn_output_g = "Txt_files/Magnification/magn_r_"+str(i)+'_'+str(j)+'_'+str(k)+".txt"
+    fn_output_g = "Txt_files/Magnification/magn_r_"+str(ra_k)+'_'+str(dec_k)+'_'+str(i)+'_'+str(j)+'_'+str(k)+".txt"
     nk_g = treecorr.NKCorrelation(min_sep=0.1,max_sep=120,nbins=8,sep_units='arcmin')
     nk_g.process(cat_1,cat_2_u)
     nk_g.write(fn_output_g)
     
-    fn_output_r = "Txt_files/Magnification/magn_r_"+str(i)+'_'+str(j)+'_'+str(k)+".txt"
+    fn_output_r = "Txt_files/Magnification/magn_r_"+str(ra_k)+'_'+str(dec_k)+'_'+str(i)+'_'+str(j)+'_'+str(k)+".txt"
     nk_r = treecorr.NKCorrelation(min_sep=0.1,max_sep=120,nbins=8,sep_units='arcmin')
     nk_r.process(cat_1,cat_2_r)
     nk_r.write(fn_output_r)
     
-    fn_output_i = "Txt_files/Magnification/magn_i_"+str(i)+'_'+str(j)+'_'+str(k)+".txt"
+    fn_output_i = "Txt_files/Magnification/magn_i_"+str(ra_k)+'_'+str(dec_k)+'_'+str(i)+'_'+str(j)+'_'+str(k)+".txt"
     nk_i = treecorr.NKCorrelation(min_sep=0.1,max_sep=120,nbins=8,sep_units='arcmin')
     nk_i.process(cat_1,cat_2_i)
     nk_i.write(fn_output_i)
@@ -192,22 +164,22 @@ def measure_reddening(ra_s,dec_s,ra_d,dec_d,magnitudes):
     
     cat_1 = treecorr.Catalog(x=ra_d,x_units='deg', y=ra_d, y_units='deg')
 
-    fn_output_ug = "Txt_files/Reddening/redd_"+str(i)+'_'+str(j)+'_'+str(k)+"_ug.txt"
+    fn_output_ug = "Txt_files/Reddening/redd_"+str(ra_k)+'_'+str(dec_k)+'_'+str(i)+'_'+str(j)+'_'+str(k)+"_ug.txt"
     nk_ug = treecorr.NKCorrelation(min_sep=0.1,max_sep=120,nbins=8,sep_units='arcmin')
     nk_ug.process(cat_1,cat_2_ug)
     nk_ug.write(fn_output_ug)
     
-    fn_output_gr = "Txt_files/Reddening/redd_"+str(i)+'_'+str(j)+'_'+str(k)+"_gr.txt"
+    fn_output_gr = "Txt_files/Reddening/redd_"+str(ra_k)+'_'+str(dec_k)+'_'+str(i)+'_'+str(j)+'_'+str(k)+"_gr.txt"
     nk_gr = treecorr.NKCorrelation(min_sep=0.1,max_sep=120,nbins=8,sep_units='arcmin')
     nk_gr.process(cat_1,cat_2_gr)
     nk_gr.write(fn_output_gr)
     
-    fn_output_ri = "Txt_files/Reddening/redd_"+str(i)+'_'+str(j)+'_'+str(k)+"_ri.txt"
+    fn_output_ri = "Txt_files/Reddening/redd_"+str(ra_k)+'_'+str(dec_k)+'_'+str(i)+'_'+str(j)+'_'+str(k)+"_ri.txt"
     nk_ri = treecorr.NKCorrelation(min_sep=0.1,max_sep=120,nbins=8,sep_units='arcmin')
     nk_ri.process(cat_1,cat_2_ri)
     nk_ri.write(fn_output_ri)
     
-    fn_output_gi = "Txt_files/Reddening/redd_"+str(i)+'_'+str(j)+'_'+str(k)+"_gi.txt"
+    fn_output_gi = "Txt_files/Reddening/redd_"+str(ra_k)+'_'+str(dec_k)+'_'+str(i)+'_'+str(j)+'_'+str(k)+"_gi.txt"
     nk_gi = treecorr.NKCorrelation(min_sep=0.1,max_sep=120,nbins=8,sep_units='arcmin')
     nk_gi.process(cat_1,cat_2_gi)
     nk_gi.write(fn_output_gi)
@@ -234,9 +206,6 @@ def measure_reddening(ra_s,dec_s,ra_d,dec_d,magnitudes):
     return
 
 ###############################################
-
-### Redshift: true/photo-z
-z_list = [z_true, z_B]
 
 def shear_list_maker(shears, convergence):
     gamma_1 = shears[0]
@@ -436,6 +405,13 @@ def cat_analyzer(cat):
                         redg_1s = redg_1[np.where((redshift>z_min_s)& (redshift<z_max_s))]
                         redg_2s = redg_2[np.where((redshift>z_min_s) & (redshift<z_max_s))]
                         w_s = weight[np.where((redshift>z_min_s) & (redshift<z_max_s))]
+                        
+                        mag_sample_u = mag[0][np.where((redshift>z_min_s) & (redshift<z_max_s))]
+                        mag_sample_g = mag[1][np.where((redshift>z_min_s) & (redshift<z_max_s))]
+                        mag_sample_r = mag[2][np.where((redshift>z_min_s) & (redshift<z_max_s))]
+                        mag_sample_i = mag[3][np.where((redshift>z_min_s) & (redshift<z_max_s))]
+                        
+                        mag_new_list = [mag_sample_u, mag_sample_g, mag_sample_r, mag_sample_i]
 
                         #LENSES
                         x1_d = x1_2[np.where((redshift>z_min_l) & (redshift<z_max_l))] 
@@ -445,10 +421,10 @@ def cat_analyzer(cat):
                         measure_ggl(x1_s,y1_s,x1_d,y1_d,redg_1s,redg_2s)
 
                         ### MAGNIFICATION ###
-                        measure_magnification(x1_s,y1_s,x1_d,y1_d,mag)
+                        measure_magnification(x1_s,y1_s,x1_d,y1_d,mag_new_list)
 
                         ### REDDENING ###
-                        measure_reddening(x1_s,y1_s,x1_d,y1_d,mag)
+                        measure_reddening(x1_s,y1_s,x1_d,y1_d,mag_new_list)
     return
 
 
