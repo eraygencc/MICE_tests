@@ -349,15 +349,11 @@ def cat_analyzer(cat):
 
     hdul.close()
     
-    ### MAGNITUDES ###
-    mags_list = [mevo_u,mevo_g,mevo_r,mevo_i, mobs_u,mobs_g,mobs_r,mobs_i]
-    magnitudes = magnitude_edit(mags_list, total_sep)
-    
-    
-    
     ####### SEPARATING INTO TILES #######
-    for ra_k in range(40,50,2):
-        for dec_k in range(10,20,2):
+    for ra_k in range(40,60,2):
+        for dec_k in range(10,30,2):
+            ra_b = ra_k + 2
+            dec_b = dec_k + 2
             ### CHOOSE DATA FROM THE CORRESPONDING TILE ###
             x1_2 = x1[np.where((x1>ra_k)&(x1<ra_b)&(y1>dec_k)&(y1<dec_b))]
             y1_2 = y1[np.where((x1>ra_k)&(x1<ra_b)&(y1>dec_k)&(y1<dec_b))]
@@ -386,7 +382,7 @@ def cat_analyzer(cat):
             
             ### MAGNITUDES ###
             mags_list = [mevo_u_2,mevo_g_2,mevo_r_2,mevo_i_2, mobs_u_2,mobs_g_2,mobs_r_2,mobs_i_2]
-            magnitudes = magnitude_edit(mags_list, total_sep)
+            magnitudes = magnitude_edit(mags_list, total_sep, convergence)
             
             ### SHEAR VALUES ###
             shear_list = [gamma1_2, gamma2_2]
@@ -406,10 +402,16 @@ def cat_analyzer(cat):
                         redg_2s = redg_2[np.where((redshift>z_min_s) & (redshift<z_max_s))]
                         w_s = weight[np.where((redshift>z_min_s) & (redshift<z_max_s))]
                         
-                        mag_sample_u = mag[0][np.where((redshift>z_min_s) & (redshift<z_max_s))]
-                        mag_sample_g = mag[1][np.where((redshift>z_min_s) & (redshift<z_max_s))]
-                        mag_sample_r = mag[2][np.where((redshift>z_min_s) & (redshift<z_max_s))]
-                        mag_sample_i = mag[3][np.where((redshift>z_min_s) & (redshift<z_max_s))]
+                        ### necessary step due to a bug in pandas ###
+                        magnitude_u = np.array(mag[0])
+                        magnitude_g = np.array(mag[1])
+                        magnitude_r = np.array(mag[2])
+                        magnitude_i = np.array(mag[3])
+                        
+                        mag_sample_u = magnitude_u[np.where((redshift>z_min_s) & (redshift<z_max_s))]
+                        mag_sample_g = magnitude_g[np.where((redshift>z_min_s) & (redshift<z_max_s))]
+                        mag_sample_r = magnitude_r[np.where((redshift>z_min_s) & (redshift<z_max_s))]
+                        mag_sample_i = magnitude_i[np.where((redshift>z_min_s) & (redshift<z_max_s))]
                         
                         mag_new_list = [mag_sample_u, mag_sample_g, mag_sample_r, mag_sample_i]
 
@@ -418,13 +420,12 @@ def cat_analyzer(cat):
                         y1_d = y1_2[np.where((redshift>z_min_l) & (redshift<z_max_l))]
 
                         ### GALAXY-GALAXY LENSING ###
-                        measure_ggl(x1_s,y1_s,x1_d,y1_d,redg_1s,redg_2s)
+                        measure_ggl(x1_s,y1_s,x1_d,y1_d,redg_1s,redg_2s,ra_k,dec_k,i,j,k)
 
                         ### MAGNIFICATION ###
-                        measure_magnification(x1_s,y1_s,x1_d,y1_d,mag_new_list)
+                        measure_magnification(x1_s,y1_s,x1_d,y1_d,mag_new_list,ra_k,dec_k,i,j,k)
 
                         ### REDDENING ###
-                        measure_reddening(x1_s,y1_s,x1_d,y1_d,mag_new_list)
+                        measure_reddening(x1_s,y1_s,x1_d,y1_d,mag_new_list,ra_k,dec_k,i,j,k)
     return
-
 
