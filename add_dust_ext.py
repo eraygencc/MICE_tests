@@ -10,6 +10,7 @@ import multiprocessing
 from pathlib import Path
 import time
 import itertools
+from scipy import interpolate
 
 hdul=fits.open("MICE_cats/mice2_cat_1.fits")
 data = hdul[1].data
